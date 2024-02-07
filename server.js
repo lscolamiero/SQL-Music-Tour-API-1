@@ -12,6 +12,12 @@ app.use(express.urlencoded({ extended: false }));
 const bandsController = require('./controllers/bands_controller');
 app.use('/bands', bandsController);
 
+const eventsController = require('./controllers/events_controller');
+app.use('/events', eventsController);
+
+const stagesController = require('./controllers/stages_controller');
+app.use('/stages', stagesController);
+
 // Sequelize Connection
 // const sequelize = new Sequelize({
 //     storage: process.env.PG_URI,

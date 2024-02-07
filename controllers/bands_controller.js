@@ -1,12 +1,18 @@
 // DEPENDENCIES
 const bands = require('express').Router();
+const { Op } = require('sequelize');
 const db = require('../models');
 const { Band } = db;
 
 // READ - FIND ALL BANDS
 bands.get('/', async (req, res) => {
     try {
-        const foundBands = await Band.findAll();
+        const foundBands = await Band.findAll({
+            order: [['available_start_time', 'ASC']],
+            where: {
+                name: { [Op.like]: `%${req.query.name ? req.query.name : ''}%` }
+            }
+        });
         res.status(200).json(foundBands);
     } catch (err) {
         res.status(500).json(err);
@@ -38,7 +44,7 @@ bands.post('/', async (req, res) => {
     }
 });
 
-// UPDATE - Update a Band
+// UPDATE A BAND
 bands.put('/:id', async (req, res) => {
     try {
         const updatedBands = await Band.update(req.body, {
@@ -53,7 +59,7 @@ bands.put('/:id', async (req, res) => {
     }
 });
 
-// DELETE - Delete a Band
+// DELETE A BAND
 bands.delete('/:id', async (req, res) => {
     try {
         const deletedBands = await Band.destroy({
