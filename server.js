@@ -8,6 +8,10 @@ require('dotenv').config();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// CONTROLLERS
+const bandsController = require('./controllers/bands_controller');
+app.use('/bands', bandsController);
+
 // Sequelize Connection
 // const sequelize = new Sequelize({
 //     storage: process.env.PG_URI,

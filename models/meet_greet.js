@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     meet_greet_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      autoIncrement: true
+      // autoIncrement: true
     },
     event_id: {
       type: DataTypes.INTEGER,
