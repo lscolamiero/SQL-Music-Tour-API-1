@@ -2,7 +2,7 @@
 const bands = require('express').Router();
 const { Op } = require('sequelize');
 const db = require('../models');
-const { Band } = db;
+const { Band, Meet_Greet, Set_Time, Event } = db 
 
 // READ - FIND ALL BANDS
 bands.get('/', async (req, res) => {
@@ -20,29 +20,42 @@ bands.get('/', async (req, res) => {
 });
 
 // READ - FIND SPECIFIC BAND
-bands.get('/:id', async (req, res) => {
+bands.get('/:name', async (req, res) => {
     try {
         const foundBand = await Band.findOne({
-            where: { band_id: req.params.id }
-        });
-        res.status(200).json(foundBand);
-    } catch (err) {
-        res.status(500).json(err);
+            where: { name: req.params.name },
+            include: [
+                { 
+                    model: Meet_Greet, 
+                    as: "meet_greets", 
+                    attributes: { exclude: ["band_id", "event_id"] },
+                    include: { 
+                        model: Event, 
+                        as: "event", 
+                        where: { name: { [Op.like]: `%${req.query.event ? req.query.event : ''}%` } } 
+                    }
+                },
+                { 
+                    model: Set_Time, 
+                    as: "set_times",
+                    attributes: { exclude: ["band_id", "event_id"] },
+                    include: { 
+                        model: Event, 
+                        as: "event", 
+                        where: { name: { [Op.like]: `%${req.query.event ? req.query.event : ''}%` } } 
+                    }
+                }
+            ],
+            order: [
+                [{ model: Meet_Greet, as: "meet_greets" }, { model: Event, as: "event" }, 'date', 'DESC'],
+                [{ model: Set_Time, as: "set_times" }, { model: Event, as: "event" }, 'date', 'DESC']
+            ]
+        })
+        res.status(200).json(foundBand)
+    } catch (error) {
+        res.status(500).json(error)
     }
 })
-
-// CREATE A BAND
-bands.post('/', async (req, res) => {
-    try {
-        const newBand = await Band.create(req.body);
-        res.status(200).json({
-            message: 'Successfully inserted a new band',
-            data: newBand
-        })
-    } catch (err) {
-        res.status(500).json(err);
-    }
-});
 
 // UPDATE A BAND
 bands.put('/:id', async (req, res) => {
